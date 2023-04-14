@@ -1,7 +1,7 @@
 // Requirements for discord bot
 const { Client, Intents } = require('discord.js');
 const { parsed } = require('dotenv').config({ path: `.env.subot` });
-const DISCORD_TOKEN = parsed['BOT_TOKEN'] || process.env.BOT_TOKEN;
+const DISCORD_TOKEN = parsed['DISCORD_BOT_TOKEN'] || process.env.BOT_TOKEN;
 
 const OPENAI_MODEL = "text-davinci-003"
 	// "gpt-3.5-turbo"
@@ -14,6 +14,7 @@ const intents = [
 
 // Create a new discord discordClient with permissions passed in (intents)
 const discordClient = new Client({intents});
+console.log(`BOT_TOKEN ${DISCORD_TOKEN}`);
 
 discordClient.login(DISCORD_TOKEN);
 
@@ -44,6 +45,24 @@ const startBot = ({ botName }) => {
          
              const userMessage = message.content.slice(1);
 
+             if (/imagine/.test(userMessage)) {
+                console.log(`ai message ${userMessage}`);
+
+                const { Configuration, OpenAIApi } = require("openai");
+                const configuration = new Configuration({
+                    apiKey: OPENAI_API_KEY,
+                });
+                const prompt = userMessage.slice(3);
+                const openai = new OpenAIApi(configuration);
+                const response = await openai.createImage({
+                    prompt: prompt,
+                    n: 1,
+		    size: "1024x1024",
+                });
+		const imageUrl = response['data'].data[0].url;
+                console.log('Response: ' + JSON.stringify(imageUrl));
+	         await message.channel.send(imageUrl);
+	     }
              if (/ai/.test(userMessage)) {
                 console.log(`ai message ${userMessage}`);
 
@@ -57,7 +76,7 @@ const startBot = ({ botName }) => {
                     model: OPENAI_MODEL, 
                     prompt: prompt,
                     temperature: 0,
-                    max_tokens: 124,
+                    max_tokens: 256,
                 });
 		const answers = response['data']['choices']
                 console.log('Response: ' + JSON.stringify(answers));
