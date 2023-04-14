@@ -1,6 +1,9 @@
 .env
+.env.*
 config.json
 node_modules
+
+**/*.swp
 
 #this folder in local repo may contain graphic work in progress or scratch code
 donottrack/
